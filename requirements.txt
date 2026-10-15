@@ -1,0 +1,14 @@
+ultralytics>=8.4
+opencv-python
+numpy
+pyyaml
+tqdm
+matplotlib
+pillow
+onnx
+onnxslim
+onnxruntime
+openvino
+nncf
+huggingface_hub
+imageio-ffmpeg

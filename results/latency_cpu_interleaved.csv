@@ -1,0 +1,7 @@
+model,preprocess_ms,inference_ms,postprocess_ms,total_ms,inference_fps,total_fps
+YOLO11n PyTorch FP32,1.64,42.26,0.92,44.82,23.7,22.3
+YOLO26n PyTorch FP32,1.59,42.37,0.97,44.94,23.6,22.3
+YOLO26n ONNX FP32,4.39,48.28,1.33,54.0,20.7,18.5
+YOLO26n OpenVINO FP32,3.31,65.99,1.24,70.53,15.2,14.2
+YOLO26n OpenVINO INT8,2.71,30.91,1.22,34.84,32.4,28.7
+YOLO11n OpenVINO INT8,2.99,32.83,1.19,37.01,30.5,27.0

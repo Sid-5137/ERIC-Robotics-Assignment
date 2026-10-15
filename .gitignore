@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+/datasets/
+/data/
+/runs/
+/outputs/
+/calib/
+*.pt
+*.onnx
+*.engine
+*_openvino_model/
+!/weights/*.pt
+!/weights/*_openvino_model/
+/README.cd
+kernel.errors.txt

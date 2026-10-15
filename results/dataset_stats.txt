@@ -1,0 +1,14 @@
+
+== train ==
+source      images     bg       cone    barrier  stop_sign
+bdddet         265     82        224          0         59
+coco          1680      0          0          0       1905
+nuim         13200   1193      36683      37712        103
+TOTAL        15145   1275      36907      37712       2067
+
+== val ==
+source      images     bg       cone    barrier  stop_sign
+bdddet          43     19         26          0         10
+coco            66      0          0          0         71
+nuim          2200    198       6509       6570         17
+TOTAL         2309    217       6535       6570         98

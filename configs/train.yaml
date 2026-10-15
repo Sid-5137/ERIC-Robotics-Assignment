@@ -1,0 +1,18 @@
+model: yolo26n.pt
+dataset_root: datasets/merged
+oversample:
+  stop_sign: 3
+epochs: 30
+imgsz: 640
+batch: 8
+workers: 4
+patience: 15
+optimizer: auto
+cos_lr: true
+close_mosaic: 10
+amp: false
+device: 0
+project: runs/detect
+name: yolo26n
+seed: 0
+save_period: 1

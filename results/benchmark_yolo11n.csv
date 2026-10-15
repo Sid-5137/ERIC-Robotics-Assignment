@@ -1,0 +1,10 @@
+model,variant,imgsz,device,size_mb,mAP50,mAP50_95,latency_ms,fps
+yolo11n_finetuned,PyTorch FP32,640,GPU,5.5,0.738,0.496,15.3,65.4
+yolo11n_finetuned,PyTorch FP32,640,CPU,5.5,0.738,0.496,44.1,22.7
+yolo11n_finetuned,ONNX FP32,640,CPU,10.7,0.74,0.501,66.0,15.1
+yolo11n_finetuned,OpenVINO FP32,640,CPU,10.8,0.739,0.5,20.9,47.8
+yolo11n_finetuned,OpenVINO INT8,640,CPU,3.4,0.733,0.494,69.6,14.4
+yolo11n_finetuned_pruned30,PyTorch FP32,640,GPU,5.5,0.737,0.496,15.6,64.3
+yolo11n_finetuned_pruned30,PyTorch FP32,640,CPU,5.5,0.737,0.496,43.7,22.9
+yolo11n_finetuned_pruned50,PyTorch FP32,640,GPU,5.5,0.725,0.486,15.3,65.3
+yolo11n_finetuned_pruned50,PyTorch FP32,640,CPU,5.5,0.725,0.486,44.7,22.4

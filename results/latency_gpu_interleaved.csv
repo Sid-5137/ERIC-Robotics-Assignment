@@ -1,0 +1,6 @@
+model,preprocess_ms,inference_ms,postprocess_ms,total_ms,inference_fps,total_fps
+YOLO11n PyTorch FP32 (CUDA),1.64,10.31,1.51,13.46,97.0,74.3
+YOLO26n PyTorch FP32 (CUDA),1.63,11.59,1.56,14.78,86.3,67.7
+YOLO11n OpenVINO INT8 (iGPU),4.52,9.12,0.96,14.6,109.6,68.5
+YOLO26n OpenVINO INT8 (iGPU),5.17,9.65,1.0,15.82,103.7,63.2
+YOLO26n OpenVINO FP32 (iGPU),4.78,11.75,1.06,17.59,85.1,56.8

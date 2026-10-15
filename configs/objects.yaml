@@ -1,0 +1,9 @@
+cone:
+  height_m: 0.74
+  use: height
+barrier:
+  height_m: 1.08
+  use: height
+stop_sign:
+  height_m: 0.75
+  use: max
