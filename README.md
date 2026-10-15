@@ -112,6 +112,13 @@ needs ~6 GB and Windows spilled it into system RAM (6 s/iteration), so training 
 ~12 min/epoch). Training checkpoints every epoch, and a watchdog script paused training on battery during a
 power cut and resumed it when mains power returned.
 
+**Why 30 epochs, and why YOLO11n stops at 17.** On the GTX 1650 one epoch takes ~12 minutes in FP32, so
+30 epochs is ~6 hours, the most that fit overnight inside the two-day deadline. The curves show it was enough:
+over YOLO26n's last 10 epochs mAP50 moved only from 0.763 to 0.767 and the validation losses flattened
+(box 1.646 → 1.629), and early stopping (patience 15) was never needed. YOLO11n was the first model, planned for
+35 epochs; it was paused after epoch 17 by a power cut, and because YOLO26n was already clearly ahead at the
+same point it was not resumed. The two are therefore compared at an equal budget of 17 epochs.
+
 ### Results (validation set, 2,309 images)
 
 | Model | Epochs | mAP50 | mAP50-95 | Cone AP50 | Barrier AP50 | Stop sign AP50 |
@@ -217,6 +224,18 @@ Full tables, input-size sweep and measurement notes in [RESULTS.md §3](RESULTS.
 | **Pruning** (global L1, 30 % / 50 %) | smaller compressed file (6.1 → 4.9 → 3.9 MB) but **no speed-up** (unstructured zeros stay in dense tensors); YOLO26n loses 1.5 / 16 mAP50 points, YOLO11n only 0.1 / 1.3 |
 | **GPU FP16** | not possible on the GTX 1650: FP16 inference returns no detections |
 
+**Choosing a nano backbone.** Larger YOLO26 variants were timed but not trained (see
+[Constraints](#constraints-and-what-was-not-done)), so this comparison is speed only, from COCO-pretrained weights:
+
+| Backbone | Parameters | CPU inference | CPU FPS | GPU inference | GPU FPS |
+|---|---|---|---|---|---|
+| **YOLO26n (used)** | 2.5 M | **43 ms** | **21.8** | **12.1 ms** | **67.5** |
+| YOLO26s | 10.0 M | 95 ms | 10.2 | 13.3 ms | 62.1 |
+| YOLO26m | 21.9 M | 251 ms | 3.9 | 32.8 ms | 27.7 |
+
+On a CPU, which is what many edge robots have, the small model is 2.2× and the medium model 5.8× slower than
+nano; on the GTX 1650 at batch 1 the gap only opens up at the medium size.
+
 Visual before/after of pruning and INT8 on the same frames: [RESULTS.md §3.4](RESULTS.md#34-pruning).
 
 **Recommendation for a robot with an Intel CPU:** OpenVINO INT8 at 640 px (~29 FPS on CPU), or on its
@@ -305,7 +324,7 @@ python -m detection.data.autolabel square --source nuim
 python -m detection.data.inspect stats
 
 python -m detection.train                                              # YOLO26n, configs/train.yaml
-python -m detection.train --model yolo11n.pt --name yolo11n epochs=35  # YOLO11n baseline
+python -m detection.train --model yolo11n.pt --name yolo11n epochs=35  # YOLO11n baseline (stopped at 17 here)
 python -m detection.train --name yolo26n --resume                      # after an interruption
 python -m detection.evaluate val --models yolo26n=weights/yolo26n_finetuned.pt yolo11n=weights/yolo11n_finetuned.pt
 python -m detection.evaluate curves --runs YOLO11n=results/training_yolo11n.csv YOLO26n=results/training_yolo26n.csv
@@ -324,6 +343,25 @@ python -m extras.track_cones --weights weights/yolo26n_finetuned.pt --scene 3 --
 python demo.py --weights weights/yolo26n_finetuned.pt --source path/to/images_or_video --camera configs/camera_bdd100k.yaml
 ```
 
+## Constraints and what was not done
+
+The work was done in the two-day window on a laptop: Intel i5-11300H, NVIDIA GTX 1650 with 4 GB, Windows.
+These limits shaped several decisions:
+
+| Constraint | Effect on the project |
+|---|---|
+| **4 GB GPU, FP16 unusable on the GTX 1650** | FP32 training at batch 8, ~12 min per epoch; no mixed-precision speed-up |
+| **Two-day deadline** | 30 training epochs for YOLO26n (~6 h); no hyperparameter search |
+| **Training time per model** | larger backbones (YOLO26s / m) and YOLO12 were not fine-tuned, so their accuracy on this data is unknown; only their speed was measured |
+| **Power cuts during training** | YOLO11n stopped at 17 epochs; a watchdog paused and resumed YOLO26n training |
+| **Dataset downloads** | the official BDD100K portal was unreachable, so BDD100K came from a Hugging Face mirror limited by request rate (~3 files/s); only the 4,647 images with traffic signs were fetched, and BDD100K's segmentation labels (which contain cones) were not available. nuImages (16 GB) was used as a 12,000-image training subset |
+| **Teacher labelling on the GTX 1650** | stop-sign pseudo-labels came from a medium-size teacher (YOLO11m) rather than the largest one |
+
+With more compute and time, the next steps would be: fine-tune YOLO26s for an accuracy-vs-speed comparison,
+train on the full nuImages and BDD100K sets (including BDD100K's cone polygons), add night-time hard negatives
+for the tail-light false positives, use structured pruning with fine-tuning so pruning gives real speed-ups,
+and try TensorRT FP16/INT8 on a GPU that supports FP16.
+
 ## Limitations
 
 * BDD100K distances rely on an assumed focal length; the quantitative distance results use nuScenes.
@@ -334,6 +372,18 @@ python demo.py --weights weights/yolo26n_finetuned.pt --source path/to/images_or
 * Teacher labels contain some noise (a few non-stop signs remain), and stop signs are the smallest class.
 * Optical-flow tracks can slide off low-texture objects between detector frames.
 * At night, red tail-lights are sometimes detected as cones (see the night clip in DEMO.md).
+
+## Data and credits
+
+* **nuScenes / nuImages** — Motional, CC BY-NC-SA 4.0 (non-commercial). Images in this repository's
+  demos come from nuScenes v1.0-mini and nuImages.
+* **BDD100K** — Berkeley DeepDrive, BDD100K licence (non-commercial research use); accessed through the
+  Hugging Face mirror `dgural/bdd100k`.
+* **COCO 2017** — annotations CC BY 4.0; images belong to their Flickr owners.
+* **Ultralytics YOLO** (YOLO11, YOLO26, YOLO-World) — AGPL-3.0.
+* OpenVINO, ONNX Runtime and OpenCV are used for export, inference and the geometry.
+
+The trained weights were fine-tuned on the datasets above and inherit their non-commercial terms.
 
 ## Contact
 

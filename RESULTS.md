@@ -91,6 +91,15 @@ validation set.
 | OpenVINO INT8, iGPU inference | **9.1 ms** | 9.7 ms |
 | Post-processing (NMS for YOLO11n, none for YOLO26n) | 0.9 ms | 1.0 ms |
 
+Backbone size, speed only (COCO-pretrained YOLO26s / m were not fine-tuned for lack of compute time;
+[`results/latency_backbones_*.csv`](results/)):
+
+| Backbone | Parameters | CPU inference | GPU inference |
+|---|---|---|---|
+| **YOLO26n** | 2.5 M | **43 ms** | **12.1 ms** |
+| YOLO26s | 10.0 M | 95 ms | 13.3 ms |
+| YOLO26m | 21.9 M | 251 ms | 32.8 ms |
+
 YOLO26n's gain on this data is **accuracy**, not speed. Ultralytics advertises up to 43 % faster CPU inference;
 that **did not reproduce here**: the two run at the same speed in PyTorch on this CPU and YOLO26n is only 6 %
 faster in INT8. With a handful of objects per image, NMS costs under a millisecond, so removing it saves little.

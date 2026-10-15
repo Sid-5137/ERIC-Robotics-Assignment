@@ -1,0 +1,4 @@
+model,preprocess_ms,inference_ms,postprocess_ms,total_ms,inference_fps,total_fps
+YOLO26n (2.5M),1.19,12.05,1.56,14.81,83.0,67.5
+YOLO26s (10.0M),1.13,13.25,1.72,16.09,75.5,62.1
+YOLO26m (21.9M),1.15,32.84,2.15,36.14,30.5,27.7
